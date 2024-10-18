@@ -1,43 +1,40 @@
-import React, { useState } from 'react';
+// src/components/CoursesList.js
+import React, { useEffect, useState } from 'react';
+import api from '../api';
 
-const availableCourses = [
-  { id: 1, name: 'Theory Course 1' },
-  { id: 2, name: 'Theory Course 2' },
-  { id: 3, name: 'Lab Course 1' },
-  { id: 4, name: 'Lab Course 2' },
-];
+const CoursesList = () => {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const CourseSelection = () => {
-  const [selectedCourses, setSelectedCourses] = useState([]);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await api.get('/courses');
+        setCourses(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+        setLoading(false);
+      }
+    };
 
-  const handleSelect = (course) => {
-    if (selectedCourses.includes(course)) {
-      setSelectedCourses(selectedCourses.filter((c) => c !== course));
-    } else {
-      setSelectedCourses([...selectedCourses, course]);
-    }
-  };
+    fetchCourses();
+  }, []);
+
+  if (loading) return <p>Loading courses...</p>;
 
   return (
-    <div className="course-selection">
-      <h2>Select Your Courses</h2>
+    <div>
+      <h2>Courses</h2>
       <ul>
-        {availableCourses.map((course) => (
+        {courses.map(course => (
           <li key={course.id}>
-            <input
-              type="checkbox"
-              checked={selectedCourses.includes(course)}
-              onChange={() => handleSelect(course)}
-            />
-            {course.name}
+            {course.name} - {course.description}
           </li>
         ))}
       </ul>
-      <button disabled={selectedCourses.length !== 6}>
-        Submit Selection
-      </button>
     </div>
   );
 };
 
-export default CourseSelection;
+export default CoursesList;

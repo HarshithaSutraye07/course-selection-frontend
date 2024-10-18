@@ -1,25 +1,36 @@
-import React from 'react';
+// src/components/TeacherProfile.js
+import React, { useEffect, useState } from 'react';
+import api from '../api';
 import { useParams } from 'react-router-dom';
-
-const teacherData = {
-  1: {
-    name: 'Dr. Smith',
-    ratings: 4.5,
-    research: 'Machine Learning, AI',
-    background: 'Ph.D. in Computer Science from MIT',
-  },
-};
 
 const TeacherProfile = () => {
   const { id } = useParams();
-  const teacher = teacherData[id];
+  const [teacher, setTeacher] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      try {
+        const response = await api.get(`/teachers/${id}`);
+        setTeacher(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching teacher:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchTeacher();
+  }, [id]);
+
+  if (loading) return <p>Loading teacher profile...</p>;
+  if (!teacher) return <p>Teacher not found.</p>;
 
   return (
-    <div className="teacher-profile">
+    <div>
       <h2>{teacher.name}</h2>
-      <p><strong>Ratings:</strong> {teacher.ratings}</p>
-      <p><strong>Research Interests:</strong> {teacher.research}</p>
-      <p><strong>Background:</strong> {teacher.background}</p>
+      <p>{teacher.profile}</p>
+      {/* Additional details like ratings, research projects, etc. */}
     </div>
   );
 };
